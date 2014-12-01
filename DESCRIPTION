@@ -1,0 +1,20 @@
+Package: GARVaS
+Title: Genetic Algorithm for Regression Variable Selection
+Version: 0.1
+Authors@R: as.person(c(
+    "Eugene Yedvabny <eyedvabny@berkeley.edu> [aut, cre]",
+    "Kuan-Cheng Lai <kuancheng@berkeley.edu> [aut]",
+    "Yuan He <yuanhe326@berkeley.edu> [aut]"
+    ))
+URL: https://github.com/eyedvabny/stat243-final
+Description: An implementation of a genetic algorithms for optimal
+    variable selection in fitting linear and generalized linear
+    regression models.
+Depends:
+    R (>= 3.1.0)
+License: MIT
+LazyData: true
+Suggests:
+    knitr,
+    testthat
+VignetteBuilder: knitr

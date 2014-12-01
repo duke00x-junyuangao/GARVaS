@@ -1,0 +1,17 @@
+---
+title: "GARVaS: Genetic Algorithm for Regression Variable Selection"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{synopsis}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+## Introduction
+
+## Authors
+
+* Yuan He
+* Kuan-Cheng Lai
+* Eugene Yedvabny
