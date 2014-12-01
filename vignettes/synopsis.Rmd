@@ -1,7 +1,7 @@
 ---
 title: "GARVaS: Genetic Algorithm for Regression Variable Selection"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: rmarkdown::pdf_document
 vignette: >
   %\VignetteIndexEntry{synopsis}
   %\VignetteEngine{knitr::rmarkdown}
