@@ -26,3 +26,7 @@ Each function should be documented using the [roxygen style](http://r-pkgs.had.c
 The function `test` will eventually contain all the unit tests. For the time being (and to simplify the workflow), unit tests should go into `tests/testthat/test-####.R` file where #### should represent a particular functionality being tested. Multiple unit tests can go into the same file, so please group all tests relating to the same functionality. All tests can be executed at once by running `devtools::test()`. Please see the `tests/testthat/test-generic.R` for an example of a unit test and the [testing documentation](http://r-pkgs.had.co.nz/tests.html) for available options.
 
 The project writeup will go into `vignettes\synopsis.Rmd`, which is an RMarkdown file that can be compiled into HTML or PDF. This file will contain the description of the algorithm, some useful examples, and documentation of contributions from the authors.
+
+## Acknowlegements
+
+Hadley Wickham's [R packages](http://r-pkgs.had.co.nz/) book provides all the necessary tutorials for creating packages and was heavily referenced during the creation of GARVaS.
