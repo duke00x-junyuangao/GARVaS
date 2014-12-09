@@ -1,7 +1,7 @@
 #' Generate the 1st generation of the genetic algorithm
 #'
-#' @param C chromosome length
-#' @return gen matrix of the first generation
+#' @param C Chromosome length
+#' @return Matrix, with each column representing a chromosome.
 
 init = function(C){
   #function to generate 1st generation, with C being the chromosome length,
@@ -9,9 +9,14 @@ init = function(C){
   P = min(2*C, 50) #Population size of each generation, 2C would be reasonable with an upper limit.
   gen = replicate(P, sample(c(0,1), size=C, replace=T))
   return(gen)
-  #Result is returned as a matrix, with each column representing a chromosome.
 }
 
+
+#' Select varuables using the genetic algorithm
+#' @param pop
+#' @param fit
+#' @return list
+#' @export
 selection = function(pop, fit="AIC"){
   #Selecting parents based on fitness ranks, with AIC as the default fitness criteria.
   #Alternatively, we can use tournament selection.
@@ -85,4 +90,4 @@ update = function(dat, generations=10){#Control maximum generation
 ##One simple test:
 #result = update(soccer) #soccer is some local data.
 #result[[1]]
-#result[[2]]
+##result[[2]]
