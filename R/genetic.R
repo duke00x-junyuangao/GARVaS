@@ -19,6 +19,7 @@ init = function(C){
 #' @export
 
 selection = function(pop, f=AIC,dat=mydata){
+
   #Selecting parents based on fitness ranks, with AIC as the default fitness criteria.
   #Alternatively, we can use tournament selection.
   #"pop" takes the population matrix, such as the parent generated using init().
@@ -27,10 +28,10 @@ selection = function(pop, f=AIC,dat=mydata){
   for (i in 1:P){
     chosen = c(which(pop[,i]==1)) #Chosen predictors
     mod = lm(as.formula(paste(colnames(dat)[1], "~",
-
                               paste(colnames(dat)[chosen+1], collapse = "+"), sep = "")), dat=mydata)
 
     #Suppose data are provided as dat with the first column being Y.
+
     ##chosen plus 1 to avoid include response
 
     fit[i] = -f(mod)
@@ -46,7 +47,7 @@ selection = function(pop, f=AIC,dat=mydata){
 
   fittest = pop[,which(fitness==max(fitness))]
   #Keep a copy of the fittest individual.
-  return(list(parents, fittest,fit))
+  return(list(parents, fittest, -fit))#We want positive AIC's
 }
 
 mutation = function(ind){#Use fixed rate 0.01
@@ -80,12 +81,14 @@ produce = function(pop){#pop is generated using selection()
   return(newGen)
 }
 
+
 update = function(dat, generations=10,f=AIC,graph=TRUE){#Control maximum generation
   C = ncol(dat) - 1 ##minus y
   pop = init(C)
   fit.val=matrix(0,min(2*C, 50),generations)
   generation.mat=matrix(rep(1:generations,each=min(2*C),50),min((2*C),50),generations)
   for (i in 1:generations){
+
     sel.result=selection(pop,f)
     parents = sel.result[[1]]
     fit.val[,i]=sel.result[[3]]
@@ -94,6 +97,7 @@ update = function(dat, generations=10,f=AIC,graph=TRUE){#Control maximum generat
   if (graph){
      matplot(generation.mat,fit.val,type="p",pch=4,col=1,xlab="Generation",ylab="Fitted Value")}
   return(list(pop, selection(pop)[[2]],fit.val))
+
   #Return two things: a matrix of the last generation; and a listing of the fittest individuals.
   #After 10 generations, the fittest ones are mostly the same, which shows convergence.
 
@@ -101,7 +105,7 @@ update = function(dat, generations=10,f=AIC,graph=TRUE){#Control maximum generat
 
 
 ##One simple test:
-result = update(mydata) #soccer is some local data.
+result = update(mydata)
 result[[1]]
 result[[2]]
 
