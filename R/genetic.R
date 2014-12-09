@@ -12,6 +12,7 @@ init = function(C){
   #Result is returned as a matrix, with each column representing a chromosome.
 }
 
+#' This is a function
 selection = function(pop, fit="AIC"){
   #Selecting parents based on fitness ranks, with AIC as the default fitness criteria.
   #Alternatively, we can use tournament selection.
