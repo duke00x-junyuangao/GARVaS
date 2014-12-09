@@ -22,7 +22,7 @@ selection = function(pop, fit="AIC"){
   for (i in 1:P){
     chosen = c(which(pop[,i]==1)) #Chosen predictors
     mod = lm(as.formula(paste(colnames(dat)[1], "~",
-                              paste(colnames(dat)[chosen], collapse = "+"), sep = "")), data=dat)
+                              paste(colnames(dat)[chosen+1], collapse = "+"), sep = "")), data=dat)
     #Suppose data are provided as dat with the first column being Y.
     fit[i] = -AIC(mod)
     #take negative since we want the one with the lowest AIC has the highest rank.
