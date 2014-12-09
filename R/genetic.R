@@ -1,8 +1,3 @@
-#' Generate the 1st generation of the genetic algorithm
-#'
-#' @param C chromosome length
-#' @return gen matrix of the first generation
-
 init = function(C){
   #function to generate 1st generation, with C being the chromosome length,
   #i.e. the number of predictors.
@@ -12,19 +7,21 @@ init = function(C){
   #Result is returned as a matrix, with each column representing a chromosome.
 }
 
-#' This is a function
-selection = function(pop, fit="AIC"){
+selection = function(pop, criteria="AIC",dat=mydata){
   #Selecting parents based on fitness ranks, with AIC as the default fitness criteria.
   #Alternatively, we can use tournament selection.
   #"pop" takes the population matrix, such as the parent generated using init().
   P = ncol(pop) #number of individuals
   fit = rep(1, P) #A vector recording fitness.
+  if (criteria == "AIC") f=AIC else f=BIC
   for (i in 1:P){
     chosen = c(which(pop[,i]==1)) #Chosen predictors
     mod = lm(as.formula(paste(colnames(dat)[1], "~",
-                              paste(colnames(dat)[chosen], collapse = "+"), sep = "")), data=dat)
+                              paste(colnames(dat)[chosen+1], collapse = "+"), sep = "")), dat=mydata)
     #Suppose data are provided as dat with the first column being Y.
-    fit[i] = -AIC(mod)
+    ##chosen plus 1 to avoid include response
+
+    fit[i] = -f(mod)
     #take negative since we want the one with the lowest AIC has the highest rank.
   }
   fitness = 2*rank(fit)/(P*(P+1)) #A vector of probability weights
@@ -37,7 +34,7 @@ selection = function(pop, fit="AIC"){
 
   fittest = pop[,which(fitness==max(fitness))]
   #Keep a copy of the fittest individual.
-  return(list(parents, fittest))
+  return(list(parents, fittest,fit))
 }
 
 mutation = function(ind){#Use fixed rate 0.01
@@ -71,19 +68,25 @@ produce = function(pop){#pop is generated using selection()
   return(newGen)
 }
 
-update = function(dat, generations=10){#Control maximum generation
-  C = ncol(dat) - 1
+update = function(dat, generations=10,criteria="AIC"){#Control maximum generation
+  C = ncol(dat) - 1 ##minus y
   pop = init(C)
+  fit.val=matrix(0,min(2*C, 50),generations)
+  generation.mat=matrix(rep(1:generations,each=min(2*C),50),min((2*C),50),generations)
   for (i in 1:generations){
-    parents = selection(pop)[[1]]
+    sel.result=selection(pop,criteria)
+    parents = sel.result[[1]]
+    fit.val[,i]=sel.result[[3]]
     pop = produce(parents)
   }
-  return(list(pop, selection(pop)[[2]]))
+  return(list(pop, selection(pop)[[2]],fit.val))
   #Return two things: a matrix of the last generation; and a listing of the fittest individuals.
   #After 10 generations, the fittest ones are mostly the same, which shows convergence.
+
 }
 
+
 ##One simple test:
-#result = update(soccer) #soccer is some local data.
-#result[[1]]
-#result[[2]]
+result = update(mydata) #soccer is some local data.
+result[[1]]
+result[[2]]
