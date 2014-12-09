@@ -77,7 +77,7 @@ produce = function(pop){#pop is generated using selection()
   return(newGen)
 }
 
-update = function(dat, generations=10,criteria="AIC"){#Control maximum generation
+update = function(dat, generations=10, criteria=AIC){#Control maximum generation
   C = ncol(dat) - 1 ##minus y
   pop = init(C)
   fit.val=matrix(0,min(2*C, 50),generations)
@@ -88,7 +88,7 @@ update = function(dat, generations=10,criteria="AIC"){#Control maximum generatio
     fit.val[,i]=sel.result[[3]]
     pop = produce(parents)
   }
-  return(list(pop, selection(pop)[[2]],fit.val))
+  return(list(pop, selection(pop, dat)[[2]],fit.val))
   #Return two things: a matrix of the last generation; and a listing of the fittest individuals.
   #After 10 generations, the fittest ones are mostly the same, which shows convergence.
 
