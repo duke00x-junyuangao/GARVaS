@@ -1,9 +1,10 @@
 
 #' Generate the 1st generation of the genetic algorithm
-#'
 #' @param C Chromosome length
 #' @return Matrix, with each column representing a chromosome.
-
+#' @examples
+#' init(C=10)
+#' init(C=20)
 init = function(C){
   #function to generate 1st generation, with C being the chromosome length,
   #i.e. the number of predictors.
@@ -28,7 +29,7 @@ selection = function(pop, f=AIC,dat=mydata){
   for (i in 1:P){
     chosen = c(which(pop[,i]==1)) #Chosen predictors
     mod = lm(as.formula(paste(colnames(dat)[1], "~",
-                              paste(colnames(dat)[chosen+1], collapse = "+"), sep = "")), dat=mydata)
+                              paste(colnames(dat)[chosen+1], collapse = "+"), sep = "")), data=mydata)
 
     #Suppose data are provided as dat with the first column being Y.
 
@@ -105,9 +106,9 @@ update = function(dat, generations=10,f=AIC,graph=TRUE){#Control maximum generat
 
 
 ##One simple test:
-result = update(mydata)
-result[[1]]
-result[[2]]
+#result = update(mydata)
+#result[[1]]
+#result[[2]]
 
 #result = update(soccer) #soccer is some local data.
 #result[[1]]
