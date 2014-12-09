@@ -18,23 +18,19 @@ init = function(C){
 #' @return list
 #' @export
 
-selection = function(pop, fit="AIC"){
+selection = function(pop, dat, criteria=AIC){
   #Selecting parents based on fitness ranks, with AIC as the default fitness criteria.
   #Alternatively, we can use tournament selection.
   #"pop" takes the population matrix, such as the parent generated using init().
   P = ncol(pop) #number of individuals
   fit = rep(1, P) #A vector recording fitness.
-  if (criteria == "AIC") f=AIC else f=BIC
   for (i in 1:P){
     chosen = c(which(pop[,i]==1)) #Chosen predictors
     mod = lm(as.formula(paste(colnames(dat)[1], "~",
-
-  paste(colnames(dat)[chosen+1], collapse = "+"), sep = "")), dat=mydata)
-
-    #Suppose data are provided as dat with the first column being Y.
+                              paste(colnames(dat)[chosen+1], collapse = "+"), sep = "")), data=dat)
     ##chosen plus 1 to avoid include response
 
-    fit[i] = -f(mod)
+    fit[i] = -criteria(mod)
     #take negative since we want the one with the lowest AIC has the highest rank.
   }
   fitness = 2*rank(fit)/(P*(P+1)) #A vector of probability weights
@@ -47,7 +43,7 @@ selection = function(pop, fit="AIC"){
 
   fittest = pop[,which(fitness==max(fitness))]
   #Keep a copy of the fittest individual.
-  return(list(parents, fittest,fit))
+  return(list(parents, fittest, -fit))#We want positive AIC's
 }
 
 mutation = function(ind){#Use fixed rate 0.01
@@ -87,7 +83,7 @@ update = function(dat, generations=10,criteria="AIC"){#Control maximum generatio
   fit.val=matrix(0,min(2*C, 50),generations)
   generation.mat=matrix(rep(1:generations,each=min(2*C),50),min((2*C),50),generations)
   for (i in 1:generations){
-    sel.result=selection(pop,criteria)
+    sel.result=selection(pop, dat, criteria)
     parents = sel.result[[1]]
     fit.val[,i]=sel.result[[3]]
     pop = produce(parents)
