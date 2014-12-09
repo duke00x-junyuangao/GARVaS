@@ -1,13 +1,24 @@
+
+#' Generate the 1st generation of the genetic algorithm
+#'
+#' @param C Chromosome length
+#' @return Matrix, with each column representing a chromosome.
+
 init = function(C){
   #function to generate 1st generation, with C being the chromosome length,
   #i.e. the number of predictors.
   P = min(2*C, 50) #Population size of each generation, 2C would be reasonable with an upper limit.
   gen = replicate(P, sample(c(0,1), size=C, replace=T))
   return(gen)
-  #Result is returned as a matrix, with each column representing a chromosome.
 }
 
-selection = function(pop, criteria="AIC",dat=mydata){
+#' Select varuables using the genetic algorithm
+#' @param pop
+#' @param fit
+#' @return list
+#' @export
+
+selection = function(pop, fit="AIC"){
   #Selecting parents based on fitness ranks, with AIC as the default fitness criteria.
   #Alternatively, we can use tournament selection.
   #"pop" takes the population matrix, such as the parent generated using init().
@@ -17,7 +28,9 @@ selection = function(pop, criteria="AIC",dat=mydata){
   for (i in 1:P){
     chosen = c(which(pop[,i]==1)) #Chosen predictors
     mod = lm(as.formula(paste(colnames(dat)[1], "~",
-                              paste(colnames(dat)[chosen+1], collapse = "+"), sep = "")), dat=mydata)
+
+  paste(colnames(dat)[chosen+1], collapse = "+"), sep = "")), dat=mydata)
+
     #Suppose data are provided as dat with the first column being Y.
     ##chosen plus 1 to avoid include response
 
@@ -87,6 +100,6 @@ update = function(dat, generations=10,criteria="AIC"){#Control maximum generatio
 
 
 ##One simple test:
-result = update(mydata) #soccer is some local data.
-result[[1]]
-result[[2]]
+#result = update(soccer) #soccer is some local data.
+#result[[1]]
+##result[[2]]
