@@ -11,12 +11,12 @@ init = function(C){
   return(gen)
 }
 
-
 #' Select varuables using the genetic algorithm
 #' @param pop
 #' @param fit
 #' @return list
 #' @export
+
 selection = function(pop, fit="AIC"){
   #Selecting parents based on fitness ranks, with AIC as the default fitness criteria.
   #Alternatively, we can use tournament selection.
