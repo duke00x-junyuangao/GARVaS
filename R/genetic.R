@@ -1,54 +1,69 @@
 
 #' Generate the 1st generation of the genetic algorithm
-#' @param C Chromosome length
-#' @return Matrix, with each column representing a chromosome.
-#' @examples
-#' init(C=10)
-#' init(C=20)
-init = function(C){
-  #function to generate 1st generation, with C being the chromosome length,
-  #i.e. the number of predictors.
-  P = min(2*C, 50) #Population size of each generation, 2C would be reasonable with an upper limit.
-  gen = replicate(P, sample(c(0,1), size=C, replace=T))
-  return(gen)
+#'
+#' Bernoulli sampling to form the first generation of the algorithm.
+#' Since interactions are possible, 2*C is a valid population size but
+#' imposing an upper limit of 50 doesn't hurt.
+#'
+#' @param C Chromosome length (number of predictors)
+#' @return Matrix, [C x 2C] or [C x 50], with each column representing a chromosome.
+init <- function(C){
+  P <- min(2*C, 50)
+  replicate(P, sample(c(0,1), size=C, replace=T))
 }
 
-#' Select varuables using the genetic algorithm
-#' @param pop
-#' @param fit
+#' Select variables using the genetic algorithm
+#'
+#' Selecting parents based on fitness ranks, with AIC as the default fitness criteria.
+#' Alternatively, we can use tournament selection.
+#'
+#' @param pop Population matrix, such as the parent generated using init().
+#' @param f Fitness function that takes in an lm or glm model and returns a
+#' a numerical 'qualification' of that model. Defaults to AIC.
+#' @param dat Data frame with columns as predictors.
+#' First column should be the response variable.
 #' @return list
-#' @export
+selection <- function(pop, f=AIC, dat){
 
-selection = function(pop, f=AIC, dat){
+  # number of individuals
+  P <- ncol(pop)
 
-  #Selecting parents based on fitness ranks, with AIC as the default fitness criteria.
-  #Alternatively, we can use tournament selection.
-  #"pop" takes the population matrix, such as the parent generated using init().
-  P = ncol(pop) #number of individuals
-  fit = rep(1, P) #A vector recording fitness.
+  # Store the fitness
+  fit <- rep(1, P)
+
+  # Variables are columns of the dataset
+  cols <- colnames(dat)
+
   for (i in 1:P){
-    chosen = c(which(pop[,i]==1)) #Chosen predictors
-    mod = lm(as.formula(paste(colnames(dat)[1], "~",
-                              paste(colnames(dat)[chosen+1], collapse = "+"), sep = "")), data=dat)
 
-    #Suppose data are provided as dat with the first column being Y.
+    # Find the chosen predictors and use them as index
+    chosen <- which(pop[,i]==1) + 1
 
-    ##chosen plus 1 to avoid include response
+    # Build a formula using the chosen predictors
+    form <- as.formula(paste(cols[1], "~", paste(cols[chosen], collapse = "+")))
 
+    # Built the linear model
+    mod <- lm(form, data=dat)
+
+    # Calculate the fitness using the provided fitness function
+    # Lowest AIC has the highest rank so take the negative
     fit[i] = -f(mod)
-    #take negative since we want the one with the lowest AIC has the highest rank.
   }
-  fitness = 2*rank(fit)/(P*(P+1)) #A vector of probability weights
 
-  parent_ind = sample(x=1:P, size=P, replace=T, prob=fitness)
-  parents = pop[ ,parent_ind]
-  #Sample from the P individuals, with weights specified as in fitness, with replacement,
-  #to generate a parenting population of size P.
-  #Note there are duplicates within the parenting population.
+  # Compute a vector of probability weights
+  fitness <- 2*rank(fit)/(P*(P+1))
 
-  fittest = pop[,which(fitness==max(fitness))]
-  #Keep a copy of the fittest individual.
-  return(list(parents, fittest, -fit))#We want positive AIC's
+  # Sample from the P individuals, with weights specified as in fitness,
+  # with replacement, to generate a parenting population of size P.
+  # Note there are duplicates within the parenting population.
+  parent_ind <- sample(x=1:P, size=P, replace=T, prob=fitness)
+  parents <- pop[ ,parent_ind]
+
+  # Keep a copy of the fittest individual.
+  fittest <- pop[,which(fitness==max(fitness))]
+
+  # Return the results as a list
+  list(parents, fittest, -fit)
 }
 
 mutation = function(ind){#Use fixed rate 0.01
@@ -97,7 +112,7 @@ update = function(dat, generations=10, f=AIC, graph=TRUE){#Control maximum gener
   }
   if (graph){
      matplot(generation.mat,fit.val,type="p",pch=4,col=1,xlab="Generation",ylab="Fitted Value")}
-  
+
   fittest = selection(pop,f,dat)[[2]]
   chosen = c(which(fittest[,1] == 1))
   mod = lm(as.formula(paste(colnames(dat)[1], "~", paste(colnames(dat)[chosen+1], collapse = "+"),

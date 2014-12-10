@@ -6,12 +6,14 @@
 init(C)
 }
 \arguments{
-\item{C}{chromosome length}
+\item{C}{Chromosome length (number of predictors)}
 }
 \value{
-gen matrix of the first generation
+Matrix, [C x 2C] or [C x 50], with each column representing a chromosome.
 }
 \description{
-Generate the 1st generation of the genetic algorithm
+Bernoulli sampling to form the first generation of the algorithm.
+Since interactions are possible, 2*C is a valid population size but
+imposing an upper limit of 50 doesn't hurt.
 }
 
