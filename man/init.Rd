@@ -7,11 +7,22 @@ init(C)
 }
 \arguments{
 \item{C}{chromosome length}
+\item{C}{chromosome length (Number of Variables in the data)}
 }
 \value{
 gen matrix of the first generation
+Boleans Matrix, where 1 represent the selecting the gene(variable), while zero not.
 }
 \description{
 Generate the 1st generation of the genetic algorithm
+}
+\details{
+This function produces first generation given the chromosome length for Genetic Algorithm. The row of
+generated booleans matrix represents locus of a gene(variable), and the column of the matrix represents different member
+of the first generation(different models). The number of first generation is defined by minimum(2C,50).
+}
+\examples{
+init(C=10)
+init(C=20)
 }
 
