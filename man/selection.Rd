@@ -9,21 +9,16 @@ selection(pop,f=AIC,dat)
 selection(pop,f=BIC,dat)
 }
 \arguments{
-\item{pop}{Population matrix, such as the parent generated using init().}
 \item{pop}{boleans matrix determined by init\{GARVas\}}
 
-\item{f}{Fitness function that takes in an lm or glm model and returns a
-a numerical 'qualification' of that model. Defaults to AIC.}
 \item{f}{fitness function that takes in an lm or glm model and returns a
 a numerical 'qualification' of that model. Users can choose AIC or BIC or even define by themselvies.
 If the f argument is missing, the default is AIC.}
 
-\item{dat}{Data frame with columns as predictors.
 \item{dat}{data frame containing the predictors in the model.
 First column should be the response variable.}
 }
 \value{
-list
 Returng a list, where containing chosen parents, fittest parent and fitting score for each parent based on fitting function.
 }
 \description{
