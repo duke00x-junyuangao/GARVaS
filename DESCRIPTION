@@ -18,3 +18,5 @@ Suggests:
     knitr,
     testthat
 VignetteBuilder: knitr
+Imports:
+    faraway
