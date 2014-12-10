@@ -9,7 +9,8 @@ init(C)
 \item{C}{chromosome length (Number of Variables in the data)}
 }
 \value{
-Boleans Matrix, [C x 2C] or [C x 50], with each column representing a chromosome. , where 1 represent the selecting the gene(variable), while zero not.
+Boleans Matrix, [C x 2C] or [C x 50], with each column representing a chromosome,
+ where 1 represent the selecting the gene(variable), while zero not.
 }
 \description{
 Bernoulli sampling to form the first generation of the algorithm.

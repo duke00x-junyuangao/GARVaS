@@ -2,7 +2,7 @@
 mtcars
 
 mod = lm(mpg~., data = mtcars) #Full model
-result = update(mtcars, generations = 30)
+result = select(mtcars, generations = 30)
 mod_new = result[[4]]
 #Updated model. Use 30 generations to guarantee convergence.
 

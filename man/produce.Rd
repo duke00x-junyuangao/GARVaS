@@ -6,19 +6,19 @@
 produce(pop)
 }
 \arguments{
-\item{pop}{selected parent chromosomes matrix from selection\{GARVaS\}}
+\item{pop}{Selected parent chromosomes matrix from \code{GARVaS::selection()}}
 }
 \value{
-It returns next generation matrix with each column represents
+It returns next generation matrix with each column representing
 new generation chromosome.
 }
 \description{
 Breeding next generation from selected parent chromosomes.
 }
 \details{
-This function produces next generation by randomly choose 2 parent chromosomes from
-selected parent matrix produced by selection\{GARVaS\}
-to perform the process of crossover and mutation which is based on the crossover\{GARVaS\}
+This function produces the next generation by randomly choosing 2 parent
+chromosomes from selected parent matrix produced by \code{GARVaS::selection()}
+to perform the process of crossover and mutation which is based on the \code{GARVaS::crossover()}
 }
 \examples{
 library(faraway)

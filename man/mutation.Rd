@@ -3,10 +3,10 @@
 \alias{mutation}
 \title{Chromosome Mutation}
 \usage{
-mutation(ind)
+mutation(chr)
 }
 \arguments{
-\item{ind}{a numeric vector represent a individual chromosome.}
+\item{chr}{a numeric vector represent a individual chromosome.}
 }
 \value{
 It returns a mutated chromosone vector with the same length as input one.

@@ -1,3 +1,64 @@
+#' Genetic Algorithm for Variable Selection
+#'
+#' This function selects best model for users based on genetic algorithm.
+#'
+#' @usage select(dat,generations=10,f=AIC,graph=TRUE)
+#' select(dat,generations=10,f=BIC,graph=TRUE)
+#' @param dat data frame containing the predictors in the model.
+#' First column should be the response variable.
+#' @param generations number of generations users want to generate.
+#' If the f argument is missing, the default is 10.
+#' @param f function that is defined by users for calculating fitting scores.
+#' Users can choose AIC or BIC or even define by themselves.
+#' If the f argument is missing, the default is AIC.
+#' @param graph if graph=TRUE, the function will plot the convergence plot based on fitting score.
+#' If the f argument is missing, the default is TRUE.
+#' @details This function will give users best linear regression model selected by genetic algorithm.
+#' It allows users to choose when to stop the algorithm and what kind of criteria they want to implement in
+#' the algorithm. And the convergence graph can also let users know when to stop the algorithm.
+#' @return It returns a list containg the last generation chromosomes matrix, the fittest chromosomes,
+#' the fitting scores of each chromosome in the last generation and the best model selected.
+#' @examples
+#' library(faraway)
+#' dat=ozone #Get ozone data from faraway package
+#' select(dat,generation=25,f=AIC, graph=TRUE)
+#' @export
+select <- function(dat, generations=10, f=AIC, graph=TRUE){
+
+  # Exclude the 1st column (the response) from the population of predictors
+  C <- ncol(dat) - 1
+  pop <- init(C)
+
+  # Placeholder matrices
+  fit.val <- matrix(0,min(2*C, 50),generations)
+  generation.mat <- matrix(rep(1:generations,each=min(2*C),50),min((2*C),50),generations)
+
+  # Perform the speficied number of generations
+  for (i in 1:generations){
+    sel.result <- selection(pop,f, dat)
+    parents <- sel.result[[1]]
+    fit.val[,i] <- sel.result[[3]]
+    pop <- produce(parents)
+  }
+
+  # Plot the results if desired
+  if (graph){
+    matplot(generation.mat,fit.val,type="p",pch=4,col=1,xlab="Generation",ylab="Fitted Value")
+  }
+
+  fittest <- selection(pop,f,dat)[[2]]
+
+  # Get the final model formula
+  cols <- colnames(dat)
+  chosen <- which(fittest[,1] == 1) + 1
+  form <- as.formula(paste(cols[1], "~", paste(cols[chosen], collapse = "+")))
+  mod <- lm(form, data=dat)
+
+  #Return four things: a matrix of the last generation; a listing of the fittest individual(s);
+  #The AIC score of the last generation; and a lm() model using the chosen variables.
+  #After 10 generations, the fittest ones are mostly the same, which shows convergence.
+  list(pop, fittest, fit.val, mod)
+}
 
 #' Generate The 1st Generation of the Genetic Algorithm
 #'
@@ -10,41 +71,40 @@
 #' @details This function produces first generation given the chromosome length for Genetic Algorithm. The row of
 #' generated booleans matrix represents locus of a gene(variable), and the column of the matrix represents different member
 #' of the first generation(different models). The number of first generation is defined by minimum(2C,50).
-#' @return Boleans Matrix, [C x 2C] or [C x 50], with each column representing a chromosome. , where 1 represent the selecting the gene(variable), while zero not.
+#' @return Boleans Matrix, [C x 2C] or [C x 50], with each column representing a chromosome,
+#'  where 1 represent the selecting the gene(variable), while zero not.
 #' @examples
 #' init(C=10)
 #' init(C=20)
-init = function(C){
-  #function to generate 1st generation, with C being the chromosome length,
-  #i.e. the number of predictors.
-  P = min(2*C, 50) #Population size of each generation, 2C would be reasonable with an upper limit.
-  gen = replicate(P, sample(c(0,1), size=C, replace=T))
-  return(gen)
+init <- function(C){
+  P <- min(2*C, 50)
+  replicate(P, sample(c(0,1), size=C, replace=T))
 }
 
-#' Select Parents Generated From init\{GARVas\} Based on given Criteria.
+#' Select Parents Generated From \code{GARVaS::init()} Based on given Criteria.
 #'
 #' Selecting parents based on fitness ranks, with AIC as the default fitness criteria.
 #' Alternatively, we can use tournament selection.
 #'
 #' @usage selection(pop,f=AIC,dat)
 #' selection(pop,f=BIC,dat)
-#' @param pop boleans matrix determined by init\{GARVas\}
+#' @param pop boleans matrix determined by \code{GARVaS::init()}
 #' @param f fitness function that takes in an lm or glm model and returns a
-#' a numerical 'qualification' of that model. Users can choose AIC or BIC or even define by themselvies.
+#' a numerical 'qualification' of that model. Users can choose AIC or BIC or even define by themselves.
 #' If the f argument is missing, the default is AIC.
 #' @param dat data frame containing the predictors in the model.
 #' First column should be the response variable.
-#' @details This function selects parents to breed by fitting linear regression model to each possible parents generated by init\{GARVas\} based on fitness rank
+#' @details This function selects parents to breed by fitting linear regression model
+#' to each possible parent generated by \code{GARVaS::init()} based on fitness rank
 #' with AIC as the default fitness function.
-#' @return Returng a list, where containing chosen parents, fittest parent and fitting score for each parent based on fitting function.
+#' @return Return a list, where containing chosen parents, fittest parent
+#' and fitting score for each parent based on fitting function.
 #' @examples
 #' library(faraway)
 #' dat=ozone #Get ozone data from faraway package
 #' C=dim(dat)[2]-1 #Number of variables
 #' pop=init(C) #produce boleans matrix
 #' selection(pop,f=AIC,dat)
-
 selection <- function(pop, f=AIC, dat){
 
   # number of individuals
@@ -69,7 +129,7 @@ selection <- function(pop, f=AIC, dat){
 
     # Calculate the fitness using the provided fitness function
     # Lowest AIC has the highest rank so take the negative
-    fit[i] = -f(mod)
+    fit[i] <- -f(mod)
   }
 
   # Compute a vector of probability weights
@@ -88,61 +148,68 @@ selection <- function(pop, f=AIC, dat){
   list(parents, fittest, -fit)
 }
 
-#'Chromosome Mutation
+#' Chromosome Mutation
 #'
-#'Make a chromosome with fixed probability 0.01 to mute
+#' Make a chromosome with fixed probability 0.01 to mute
 #'
-#'@usage mutation(ind)
-#'@param ind a numeric vector represent a individual chromosome.
-#'@details This function makes a chromosome has a 1% fixed chance to mute in each locale. If mutation
-#'happens at one locale, it will make the value in that locale from 1 to 0(or 0 to 1).
-#'@return It returns a mutated chromosone vector with the same length as input one.
-#'@examples
-#'ind=init(9)[,1] #Generate a chromosome
-#'mutation(ind)
-mutation = function(ind){#Use fixed rate 0.01
-  n = length(ind)
-  for (i in 1:n){
-    a = sample(1:100, size=1)
-    if (a==1){ind[i] = 1 - ind[i]}
+#' @usage mutation(chr)
+#' @param chr a numeric vector represent a individual chromosome.
+#' @details This function makes a chromosome has a 1% fixed chance to mute in each locale. If mutation
+#' happens at one locale, it will make the value in that locale from 1 to 0(or 0 to 1).
+#' @return It returns a mutated chromosone vector with the same length as input one.
+#' @examples
+#' ind=init(9)[,1] #Generate a chromosome
+#' mutation(ind)
+mutation <- function(chr){
+  for (i in 1:length(chr)){
+    a <- sample(1:100, size=1)
+
     #If mutation happens at one locale, change the 1 at that postition to 0(or 0 to 1).
+    if (a==1){chr[i] = 1 - chr[i]}
     else{next}
   }
-  return(ind)
+
+  # Return the mutated chromosome
+  chr
 }
 
-#'Chromosomes Crossover and Mutation
+#' Chromosome Crossover and Mutation
 #'
-#'Make 2 individual parent chromosomes crossover and mute when breeding offsprings.
+#' Make 2 individual parent chromosomes crossover and mute when breeding offsprings.
 #'
-#'@usage crossover(ind1,ind2)
-#'@param ind1,ind2 a numeric vectors represents individual parent chromosome.
-#'@details This function makes two individual parent chromosomes perfrom crossover and mutation when
-#'breeding next generation. Note that the crossover is simply one-point crossover and the mutation is based on mutation\{GARVas\}.
-#'@return It returns a matrix with each column represents each offspring from a process of crossover
-#'and mutation.
-#'@examples
-#'ind1=init(9)[,1]
-#'ind2=init(9)[,2] #Generate 2 chromosomes
-#'crossover(ind1,ind2)
-crossover = function(ind1, ind2){ #Simply one-point crossover.
-  C = length(ind1) #Length of chromosome
-  k = sample(1:(C-1), 1) #randomly select a point as the point of crossover.
-  ind1_new = mutation(c(ind1[1:k], ind2[(k+1):C]))
-  ind2_new = mutation(c(ind2[1:k], ind1[(k+1):C]))
-  return(matrix(c(ind1_new, ind2_new), ncol=2))
+#' @usage crossover(chr1,chr2)
+#' @param chr1,chr2 a numeric vectors represents individual parent chromosome.
+#' @details This function makes two individual parent chromosomes perfrom crossover and mutation
+#' when breeding next generation. Note that the crossover is simply one-point crossover
+#' and the mutation is based on \code{GARVaS::mutation()}.
+#' @return A matrix with each column representing the
+#' offsprings from a process of crossover and mutation.
+#' @examples
+#' ind1=init(9)[,1]
+#' ind2=init(9)[,2]
+#' crossover(ind1,ind2)
+crossover <- function(chr1, chr2){
+  C <- length(chr1)
+
+  #randomly select a point as the point of crossover.
+  k <- sample(1:(C-1), 1)
+  chr1_new <- mutation(c(chr1[1:k], chr2[(k+1):C]))
+  chr2_new <- mutation(c(chr2[1:k], chr1[(k+1):C]))
+
+  # Return the joined chromosomes
+  cbind(chr1_new, chr2_new)
 }
 
-#'Produce Next Generation
+#' Produce Next Generation
 #'
 #' Breeding next generation from selected parent chromosomes.
 #'
 #' @usage produce(pop)
-#' @param pop selected parent chromosomes matrix from selection\{GARVaS\}
-#' @details This function produces next generation by randomly choose 2 parent chromosomes from
-#' selected parent matrix produced by selection\{GARVaS\}
-#' to perform the process of crossover and mutation which is based on the crossover\{GARVaS\}
-#' @return It returns next generation matrix with each column represents
+#' @param pop Selected parent chromosomes matrix from \code{GARVaS::selection()}
+#' @details This function produces the next generation by randomly choosing 2 parent
+#' chromosomes from selected parent matrix produced by \code{GARVaS::selection()}
+#' to perform the process of crossover and mutation which is based on the \code{GARVaS::crossover()}
+#' @return It returns next generation matrix with each column representing
 #' new generation chromosome.
 #' @examples
 #' library(faraway)
@@ -151,64 +218,18 @@ crossover = function(ind1, ind2){ #Simply one-point crossover.
 #' pop=init(C) #produce boleans matrix
 #' pop=selection(pop,f=AIC,dat) #Generare a selected parent matrix
 #' produce(pop) #Produce next generation.
-produce = function(pop){#pop is generated using selection()
-  #Production from generation t to generation (t+1).
-  P = ncol(pop)
-  order = sample(1:P, size=P)#Randomly assign paris
-  newGen = crossover(pop[,order[1]], pop[,order[2]]) #The first two offspring generated by the first pair of parents.
+produce <- function(pop){
+  P <- ncol(pop)
+
+  #Randomize the parent assignment
+  order <- sample(1:P, size=P)
+
+  #The first two offspring generated by the first pair of parents.
+  newGen <- crossover(pop[,order[1]], pop[,order[2]])
   for (i in 2:(P/2)){
-    newGen = cbind(newGen, crossover(pop[,order[2*i-1]], pop[,order[2*i]]))
+    newGen <- cbind(newGen, crossover(pop[,order[2*i-1]], pop[,order[2*i]]))
   }
-  return(newGen)
+
+  # Return the new generation
+  newGen
 }
-
-#'Genetic Algorithm for Variable Selection
-#'
-#'This function selects best model for users based on genetic algorithm.
-#'
-#'@usage update(dat,generations=10,f=AIC,graph=TRUE)
-#'update(dat,generations=10,f=BIC,graph=TRUE)
-#' @param dat data frame containing the predictors in the model.
-#' First column should be the response variable.
-#'@param generations number of generations users want to generate.
-#'If the f argument is missing, the default is 10.
-#'@param f function that is defined by users for calculating fitting scores. Users can choose AIC or BIC or even define by themselvies.
-#' If the f argument is missing, the default is AIC.
-#'@param graph if graph=TRUE, the function will plot the convergence plot based on fitting score.
-#'If the f argument is missing, the default is TRUE.
-#'@details This function will give users best linear regression model selected by genetic algorithm.
-#'It allows users to choose when to stop the algorithm and what kind of criteria they want to implement in
-#'the algorithm. And the convergence graph can also let users know when to stop the algorithm.
-#'@return It returns a list containg the last generation chromosomes matrix, the fittest chromosomes,
-#' the fitting scores of each chromosome in the last generation and the best model selected.
-#'@examples
-#'#' library(faraway)
-#' dat=ozone #Get ozone data from faraway package
-#' update(dat,generation=25,f=AIC, graph=TRUE)
-#' @export
-update = function(dat, generations=10, f=AIC, graph=TRUE){#Control maximum generation
-  C = ncol(dat) - 1 ##minus y
-  pop = init(C)
-  fit.val=matrix(0,min(2*C, 50),generations)
-  generation.mat=matrix(rep(1:generations,each=min(2*C),50),min((2*C),50),generations)
-  for (i in 1:generations){
-
-    sel.result=selection(pop,f, dat)
-    parents = sel.result[[1]]
-    fit.val[,i]=sel.result[[3]]
-    pop = produce(parents)
-  }
-  if (graph){
-     matplot(generation.mat,fit.val,type="p",pch=4,col=1,xlab="Generation",ylab="Fitted Value")}
-
-  fittest = selection(pop,f,dat)[[2]]
-  chosen = c(which(fittest[,1] == 1))
-  mod = lm(as.formula(paste(colnames(dat)[1], "~", paste(colnames(dat)[chosen+1], collapse = "+"),
-                                sep = "")), data=dat)
-  return(list(pop, fittest, fit.val, mod))
-
-  #Return four things: a matrix of the last generation; a listing of the fittest individual(s);
-  #The AIC score of the last generation; and a lm() model using the chosen variables.
-  #After 10 generations, the fittest ones are mostly the same, which shows convergence.
-}
-
