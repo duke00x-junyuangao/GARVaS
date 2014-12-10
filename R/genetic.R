@@ -19,7 +19,7 @@ init = function(C){
 #' @return list
 #' @export
 
-selection = function(pop, f=AIC,dat=mydata){
+selection = function(pop, f=AIC, dat){
 
   #Selecting parents based on fitness ranks, with AIC as the default fitness criteria.
   #Alternatively, we can use tournament selection.
@@ -29,7 +29,7 @@ selection = function(pop, f=AIC,dat=mydata){
   for (i in 1:P){
     chosen = c(which(pop[,i]==1)) #Chosen predictors
     mod = lm(as.formula(paste(colnames(dat)[1], "~",
-                              paste(colnames(dat)[chosen+1], collapse = "+"), sep = "")), data=mydata)
+                              paste(colnames(dat)[chosen+1], collapse = "+"), sep = "")), data=dat)
 
     #Suppose data are provided as dat with the first column being Y.
 
@@ -62,7 +62,7 @@ mutation = function(ind){#Use fixed rate 0.01
   return(ind)
 }
 
-crossover = function(ind1, ind2){ #Now simply one-point crossover.
+crossover = function(ind1, ind2){ #Simply one-point crossover.
   C = length(ind1) #Length of chromosome
   k = sample(1:(C-1), 1) #randomly select a point as the point of crossover.
   ind1_new = mutation(c(ind1[1:k], ind2[(k+1):C]))
@@ -83,34 +83,29 @@ produce = function(pop){#pop is generated using selection()
 }
 
 
-update = function(dat, generations=10,f=AIC,graph=TRUE){#Control maximum generation
+update = function(dat, generations=10, f=AIC, graph=TRUE){#Control maximum generation
   C = ncol(dat) - 1 ##minus y
   pop = init(C)
   fit.val=matrix(0,min(2*C, 50),generations)
   generation.mat=matrix(rep(1:generations,each=min(2*C),50),min((2*C),50),generations)
   for (i in 1:generations){
 
-    sel.result=selection(pop,f)
+    sel.result=selection(pop,f, dat)
     parents = sel.result[[1]]
     fit.val[,i]=sel.result[[3]]
     pop = produce(parents)
   }
   if (graph){
      matplot(generation.mat,fit.val,type="p",pch=4,col=1,xlab="Generation",ylab="Fitted Value")}
-  return(list(pop, selection(pop)[[2]],fit.val))
+  
+  fittest = selection(pop,f,dat)[[2]]
+  chosen = c(which(fittest[,1] == 1))
+  mod = lm(as.formula(paste(colnames(dat)[1], "~", paste(colnames(dat)[chosen+1], collapse = "+"),
+                                sep = "")), data=dat)
+  return(list(pop, fittest, fit.val, mod))
 
-  #Return two things: a matrix of the last generation; and a listing of the fittest individuals.
+  #Return four things: a matrix of the last generation; a listing of the fittest individual(s);
+  #The AIC score of the last generation; and a lm() model using the chosen variables.
   #After 10 generations, the fittest ones are mostly the same, which shows convergence.
-
 }
-
-
-##One simple test:
-#result = update(mydata)
-#result[[1]]
-#result[[2]]
-
-#result = update(soccer) #soccer is some local data.
-#result[[1]]
-##result[[2]]
 
