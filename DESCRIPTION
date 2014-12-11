@@ -12,11 +12,13 @@ Description: An implementation of a genetic algorithms for optimal
     regression models.
 Depends:
     R (>= 3.1.0)
-License: MIT
+License: MIT + file LICENSE
 LazyData: true
 Suggests:
     knitr,
     testthat
 VignetteBuilder: knitr
 Imports:
-    faraway
+    faraway,
+    doParallel,
+    foreach
