@@ -1,14 +1,9 @@
-require(doParallel)
-library(foreach)
-nCores <- detectCores()
-registerDoParallel(nCores)
-
 #' Genetic Algorithm for Variable Selection
 #'
 #' This function selects best model for users based on genetic algorithm.
 #'
-#' @usage select(dat,generations=10,f=AIC,graph=TRUE)
-#' select(dat,generations=10,f=BIC,graph=TRUE)
+#' @usage select(dat,generations=10,f=AIC,model="lm",graph=TRUE)
+#' select(dat,generations=10,f=BIC,model="glm",graph=TRUE)
 #' @param dat data frame containing the predictors in the model.
 #' First column should be the response variable.
 #' @param generations number of generations users want to generate.
@@ -24,14 +19,27 @@ registerDoParallel(nCores)
 #' @details This function will give users best linear regression model selected by genetic algorithm.
 #' It allows users to choose when to stop the algorithm and what kind of criteria they want to implement in
 #' the algorithm. And the convergence graph can also let users know when to stop the algorithm.
+#' @section Parallel Computation: The internal fitness calculations use parallel for-loop to rank the chromosomes.
+#' By default the parallel back-end will scale to use all cores on the machine of choice.
 #' @return It returns a list containg the last generation chromosomes matrix, the fittest chromosomes,
 #' the fitting scores of each chromosome in the last generation and the best model selected.
 #' @examples
 #' library(faraway)
 #' dat=ozone #Get ozone data from faraway package
-#' select(dat,generation=25,f=AIC, graph=TRUE)
+#' select(dat)
+#' select(dat,generations=25,f=AIC, graph=FALSE)
 #' @export
 select <- function(dat, generations=10, f=AIC, model="lm", family=gaussian, graph=TRUE){
+
+  # Make sure the parallel packages are installed and available
+  if(! requireNamespace("doParallel", quietly = TRUE) |
+       !requireNamespace("foreach", quietly = TRUE)){
+    stop("GARVaS requires doParallel and foreach for parallel computation")
+  }
+
+  # Register the parallel cluster for subsequent computation
+  nCores <- parallel::detectCores()
+  doParallel::registerDoParallel(nCores)
 
   # Exclude the 1st column (the response) from the population of predictors
   C <- ncol(dat) - 1
@@ -54,6 +62,7 @@ select <- function(dat, generations=10, f=AIC, model="lm", family=gaussian, grap
     matplot(generation.mat,fit.val,type="p",pch=4,col=1,xlab="Generation",ylab="Fitted Value")
   }
 
+  # Calculate the final fitness of the selected population
   fittest <- selection(pop,f,dat,model,family)[[2]]
 
   # Get the final model formula
@@ -123,9 +132,9 @@ selection <- function(pop, f=AIC, dat, model="lm", family=gaussian){
 
   # Variables are columns of the dataset
   cols <- colnames(dat)
-  
+
   # Use parallel:
-  fit <- foreach(i = 1:P, .combine=c) %dopar% {
+  fit <- foreach::foreach(i = 1:P, .combine=c) %dopar% {
 
     # Find the chosen predictors and use them as index
     chosen <- which(pop[,i]==1) + 1
