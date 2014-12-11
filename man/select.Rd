@@ -3,8 +3,8 @@
 \alias{select}
 \title{Genetic Algorithm for Variable Selection}
 \usage{
-select(dat,generations=10,f=AIC,graph=TRUE)
-select(dat,generations=10,f=BIC,graph=TRUE)
+select(dat,generations=10,f=AIC,model="lm",graph=TRUE)
+select(dat,generations=10,f=BIC,model="glm",graph=TRUE)
 }
 \arguments{
 \item{dat}{data frame containing the predictors in the model.
@@ -16,6 +16,11 @@ If the f argument is missing, the default is 10.}
 \item{f}{function that is defined by users for calculating fitting scores.
 Users can choose AIC or BIC or even define by themselves.
 If the f argument is missing, the default is AIC.}
+
+\item{model}{the linear model that user wants to use to fit in the data.
+It can be either "lm" or "glm", with the default being "lm".}
+
+\item{family}{the family argument in the glm() function, if model was selected as "glm".}
 
 \item{graph}{if graph=TRUE, the function will plot the convergence plot based on fitting score.
 If the f argument is missing, the default is TRUE.}
@@ -32,9 +37,14 @@ This function will give users best linear regression model selected by genetic a
 It allows users to choose when to stop the algorithm and what kind of criteria they want to implement in
 the algorithm. And the convergence graph can also let users know when to stop the algorithm.
 }
+\section{Parallel Computation}{
+ The internal fitness calculations use parallel for-loop to rank the chromosomes.
+By default the parallel back-end will scale to use all cores on the machine of choice.
+}
 \examples{
 library(faraway)
 dat=ozone #Get ozone data from faraway package
-select(dat,generation=25,f=AIC, graph=TRUE)
+select(dat)
+select(dat,generations=25,f=AIC, graph=FALSE)
 }
 

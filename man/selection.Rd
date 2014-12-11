@@ -15,6 +15,10 @@ If the f argument is missing, the default is AIC.}
 
 \item{dat}{data frame containing the predictors in the model.
 First column should be the response variable.}
+
+\item{model}{the linear model that user wants to use to fit in the data, can be either "lm" or "glm".}
+
+\item{family}{the family argument in the glm() function, if model was selected as "glm".}
 }
 \value{
 Return a list, where containing chosen parents, fittest parent
