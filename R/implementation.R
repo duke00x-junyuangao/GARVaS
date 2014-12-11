@@ -17,17 +17,15 @@ colnames(mtcars[,chosen_ind + 1])
 AIC(mod)
 AIC(mod_new)
 
-prediction = predict(mod)
-MSE = sum((prediction-mtcars[,1])^2)/nrow(mtcars)
+MSE = sum((predict(mod)-mtcars[,1])^2)/nrow(mtcars)
 MSE
 
-prediction = predict(mod_new)
-MSE_new = sum((prediction-mtcars[,1])^2)/nrow(mtcars)
+MSE_new = sum((predict(mod_new)-mtcars[,1])^2)/nrow(mtcars)
 MSE_new
 #We managed to decrease the AIC at the cost of sacrificing prediction accuracy (MSE became slightly bigger.)
 
 ###Now plot to check normality
-par(mfrow=c(1,2), mar=rep(4,4))
+par(mfrow=c(2,1), mar=rep(4,4))
 plot(fitted(mod), residuals(mod),xlab="Fitted Value", ylab="Residual(Error)",
      main="Residual Plot (full)")
 plot(fitted(mod_new), residuals(mod_new),xlab="Fitted Value", ylab="Residual(Error)",
