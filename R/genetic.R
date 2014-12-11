@@ -1,3 +1,8 @@
+require(doParallel)
+library(foreach)
+nCores <- detectCores()
+registerDoParallel(nCores)
+
 #' Genetic Algorithm for Variable Selection
 #'
 #' This function selects best model for users based on genetic algorithm.
@@ -116,13 +121,11 @@ selection <- function(pop, f=AIC, dat, model="lm", family=gaussian){
   # number of individuals
   P <- ncol(pop)
 
-  # Store the fitness
-  fit <- rep(1, P)
-
   # Variables are columns of the dataset
   cols <- colnames(dat)
-
-  for (i in 1:P){
+  
+  # Use parallel:
+  fit <- foreach(i = 1:P, .combine=c) %dopar% {
 
     # Find the chosen predictors and use them as index
     chosen <- which(pop[,i]==1) + 1
@@ -136,7 +139,7 @@ selection <- function(pop, f=AIC, dat, model="lm", family=gaussian){
 
     # Calculate the fitness using the provided fitness function
     # Lowest AIC has the highest rank so take the negative
-    fit[i] <- -f(mod)
+    -f(mod)
   }
 
   # Compute a vector of probability weights
