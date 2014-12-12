@@ -22,7 +22,7 @@ The source code is available on GitHub at https://github.com/eyedvabny/GARVaS an
 devtools::install_github("eyedvabny/GARVaS")
 ```
 
-The package depends on `doParallel`,`foreach` and `farway` packages, which will be installed alongside GARVaS.
+or by cloning the repository and opening the included .Rproj file.The package depends on `doParallel`,`foreach` and `faraway` packages, which will be installed alongside GARVaS.
 
 ## Introduction
 
@@ -34,11 +34,17 @@ The genetic algorithm attemps to solve the above problem by keeping track of all
 
 ## Code Layout
 
-We have auxiliary functions to carry out initialization, mutation, crossover, selection of parents and production. Parallel processing is used in both production and selection of parents. Generic fitness function and a possible choice of glm() are included as options for the selection function.
+We have auxiliary functions to carry out initialization, mutation, crossover, selection of parents and production. Parallel processing is used in both production and selection of parents. Generic fitness function and a possible choice of `glm()` are included as options for the selection function.
 
-Our main function select() takes advantage of the above auxiliary functions and does variable selection of the given dataset using fitness function and linear model chosen by users. Select() returns an S3 object with desired information stored as attributes. Printing and plotting methods are available for the S3 object.
+Our main function `select()` takes advantage of the above auxiliary functions and does variable selection of the given dataset using fitness function and linear model chosen by users. `select()` returns an S3 object with desired information stored as attributes. Printing and plotting methods are available for the S3 object.
 
 ## Testing
+
+Testing is done using the `testthat` package and consists of multiple unit tests for each of the underlying functions. The tests live in `test\testthat\test-###.R` files where ### corresponds to the function tested within that file. Due the stochastic nature of the algorithm the majority of the tests verify the consistency of the data structures and that _on average_ mutations and cross-overs do not exceed the desired thresholds.
+
+Testing of the main `select()` function is a combination of unit tests for validity of the underlying components as well as a "known truth" dataset that should converge to an expected model. An example of GARVaS usage is also illustrated in the following section.
+
+All unit tests can be executed by running `devtools::test()` from the package directory.
 
 ## Algorithm Implementation
 
