@@ -91,14 +91,24 @@ select <- function(dat, generations=10, f=AIC,
   if (model=="lm"){mod <- lm(form, data=dat)}
   else{mod <- glm(form, data=dat, family=family)}
 
-  #Return four things:
+  # Use an S3 class for GA selection
+  GA_model <- list()
+  class(GA_model) <- "GA Model"
+
+  # Return four things:
   # 1) a matrix of the last generation;
   # 2) a listing of the fittest individual(s);
   # 3) The AIC score of the last generation
   # 4) lm() model using the chosen variables.
   # After 10 generations, the fittest ones are
   # mostly the same, which shows convergence.
-  list(pop, fittest, fit.val, mod)
+  GA_model$pop <- pop
+  GA_model$fitness <- fittest
+  GA_model$fit.val <- fit.val
+  GA_model$model <- mod
+
+  # Return the new GA model
+  GA_model
 }
 
 #' Generate The 1st Generation of the Genetic Algorithm
@@ -278,7 +288,7 @@ selection <- function(pop, f=AIC, dat, model="lm", family=gaussian){
   # Variables are columns of the dataset
   cols <- colnames(dat)
 
-  # Use parallel
+  # Process each chromosome in parallel
   fit <- foreach::`%dopar%`(foreach::foreach(i = 1:P, .combine=c),{
 
     # Find the chosen predictors and use them as index
