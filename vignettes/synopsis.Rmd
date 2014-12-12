@@ -34,6 +34,10 @@ The genetic algorithm attemps to solve the above problem by keeping track of all
 
 ## Code Layout
 
+We have auxiliary functions to carry out initialization, mutation, crossover, selection of parents and production. Parallel processing is used in both production and selection of parents. Generic fitness function and a possible choice of glm() are included as options for the selection function.
+
+Our main function select() takes advantage of the above auxiliary functions and does variable selection of the given dataset using fitness function and linear model chosen by users. Select() returns an S3 object with desired information stored as attributes. Printing and plotting methods are available for the S3 object.
+
 ## Testing
 
 ## Algorithm Implementation
@@ -60,11 +64,10 @@ mod_new = result$model #Updated model
 Then we want to take a look at the variables chosen by the algorithm:
 
 ```{r}
-result$fittest
+result$best_genes
 #Many replicates show good convergence, three variables were singled out.
 
-chosen_ind = c(which(result$fittest[,1] == 1))
-colnames(mtcars[,chosen_ind + 1])
+coef(result$model)
 ```
 
 Only 3 variables out of 10 were chosen, dimension got reduced significantly. The three chosen predictors are "wt", "qsec" and "am".
