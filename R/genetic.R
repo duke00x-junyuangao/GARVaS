@@ -64,8 +64,6 @@ select <- function(dat, generations=10, f=AIC,
 
   # Placeholder matrices
   fit.val <- matrix(0,min(2*C, 50), generations)
-  generation.mat <- matrix(rep(1:generations, each=min(2*C),50),
-                           min((2*C),50), generations)
 
   # Perform the speficied number of generations
   for (i in 1:generations){
@@ -73,12 +71,6 @@ select <- function(dat, generations=10, f=AIC,
     parents <- sel.result[[1]]
     fit.val[,i] <- sel.result[[3]]
     pop <- production(parents)
-  }
-
-  # Plot the results if desired
-  if (graph){
-    matplot(generation.mat, fit.val, type="p", pch=4, col=1,
-            xlab="Generation", ylab="Fitted Value")
   }
 
   # Calculate the final fitness of the selected population
@@ -93,7 +85,7 @@ select <- function(dat, generations=10, f=AIC,
 
   # Use an S3 class for GA selection
   GA_model <- list()
-  class(GA_model) <- "GA Model"
+  class(GA_model) <- "ga_model"
 
   # Return four things:
   # 1) a matrix of the last generation;
@@ -103,12 +95,28 @@ select <- function(dat, generations=10, f=AIC,
   # After 10 generations, the fittest ones are
   # mostly the same, which shows convergence.
   GA_model$pop <- pop
-  GA_model$fitness <- fittest
+  GA_model$best_genes <- fittest
   GA_model$fit.val <- fit.val
   GA_model$model <- mod
+  GA_model$fitness <- f(mod)
 
   # Return the new GA model
   GA_model
+}
+
+#' @export
+print.ga_model <- function(ga_model,...){
+
+  cat("Fitness Score:\n")
+  print(ga_model$fitness)
+
+  cat("Final Model:\n")
+  print(ga_model$mod$coefficients)
+}
+
+#' @export
+plot.ga_model <- function(ga_model,...){
+  boxplot(ga_model$fit.val, xlab="Generation", ylab="Fitness Score")
 }
 
 #' Generate The 1st Generation of the Genetic Algorithm
