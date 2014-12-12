@@ -3,8 +3,8 @@
 \alias{select}
 \title{Genetic Algorithm for Variable Selection}
 \usage{
-select(dat,generations=10,f=AIC,model="lm",graph=TRUE)
-select(dat,generations=10,f=BIC,model="glm",graph=TRUE)
+select(dat,generations=10,f=AIC,model="lm")
+select(dat,generations=10,f=BIC,model="glm")
 }
 \arguments{
 \item{dat}{data frame containing the predictors in the model.
@@ -22,9 +22,6 @@ It can be either "lm" or "glm", with the default being "lm".}
 
 \item{family}{the family argument in the glm() function,
 if model was selected as "glm".}
-
-\item{graph}{if graph=TRUE, the function will plot the convergence plot
-based on fitting score. If the f argument is missing, the default is TRUE.}
 }
 \value{
 It returns a list containg the last generation chromosomes matrix,
@@ -37,8 +34,7 @@ This function selects best model for users based on genetic algorithm.
 \details{
 This function will give users best linear regression model selected
 by genetic algorithm. It allows users to choose when to stop the algorithm
-and what kind of criteria they want to implement in the algorithm. And the
-convergence graph can also let users know when to stop the algorithm.
+and what kind of criteria they want to implement in the algorithm.
 }
 \section{Parallel Computation}{
  The internal fitness calculations use parallel
@@ -49,6 +45,6 @@ to use all cores on the machine of choice.
 library(faraway)
 dat<-ozone #Get ozone data from faraway package
 select(dat)
-select(dat,generations=25,f=AIC, graph=FALSE)
+select(dat,generations=25,f=AIC)
 }
 

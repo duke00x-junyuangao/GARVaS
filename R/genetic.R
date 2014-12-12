@@ -3,8 +3,8 @@
 #' This function selects best model for users based on genetic algorithm.
 #'
 #' @usage
-#' select(dat,generations=10,f=AIC,model="lm",graph=TRUE)
-#' select(dat,generations=10,f=BIC,model="glm",graph=TRUE)
+#' select(dat,generations=10,f=AIC,model="lm")
+#' select(dat,generations=10,f=BIC,model="glm")
 #'
 #' @param dat data frame containing the predictors in the model.
 #' First column should be the response variable.
@@ -22,13 +22,9 @@
 #' @param family the family argument in the glm() function,
 #' if model was selected as "glm".
 #'
-#' @param graph if graph=TRUE, the function will plot the convergence plot
-#' based on fitting score. If the f argument is missing, the default is TRUE.
-#'
 #' @details This function will give users best linear regression model selected
 #' by genetic algorithm. It allows users to choose when to stop the algorithm
-#' and what kind of criteria they want to implement in the algorithm. And the
-#' convergence graph can also let users know when to stop the algorithm.
+#' and what kind of criteria they want to implement in the algorithm.
 #'
 #' @section Parallel Computation: The internal fitness calculations use parallel
 #' for-loop to rank the chromosomes. By default the parallel back-end will scale
@@ -42,11 +38,11 @@
 #' library(faraway)
 #' dat<-ozone #Get ozone data from faraway package
 #' select(dat)
-#' select(dat,generations=25,f=AIC, graph=FALSE)
+#' select(dat,generations=25,f=AIC)
 #'
 #' @export
 select <- function(dat, generations=10, f=AIC,
-                   model="lm", family=gaussian, graph=TRUE){
+                   model="lm", family=gaussian){
 
   # Load the doParallel and foreach packages if not yet loaded
   if(!requireNamespace("doParallel", quietly = TRUE)|
@@ -89,9 +85,10 @@ select <- function(dat, generations=10, f=AIC,
 
   # Return four things:
   # 1) a matrix of the last generation;
-  # 2) a listing of the fittest individual(s);
-  # 3) The AIC score of the last generation
-  # 4) lm() model using the chosen variables.
+  # 2) a listing of the fittest individual(s) in the last generation;
+  # 3) The fitness score of the over generation for each model.
+  # 4) linear model model using the chosen variables.
+  # 5) The fitness score for the selected model.
   # After 10 generations, the fittest ones are
   # mostly the same, which shows convergence.
   GA_model$pop <- pop
@@ -104,6 +101,7 @@ select <- function(dat, generations=10, f=AIC,
   GA_model
 }
 
+#Use S3 method to print out the fitted score for the chosen model and the chosen model itself.
 #' @export
 print.ga_model <- function(ga_model,...){
 
@@ -114,6 +112,9 @@ print.ga_model <- function(ga_model,...){
   print(ga_model$mod$coefficients)
 }
 
+
+#Use S3 method to plot boxplot for fitness score for each generataion.
+# As we can see in plot, the fitness score converges as generation expands.
 #' @export
 plot.ga_model <- function(ga_model,...){
   boxplot(ga_model$fit.val, xlab="Generation", ylab="Fitness Score")
