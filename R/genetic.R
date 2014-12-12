@@ -71,6 +71,8 @@ select <- function(dat, generations=10, f=AIC,
 
   # Calculate the final fitness of the selected population
   fittest <- selection(pop,f,dat,model,family)[[2]]
+  rownames(fittest) <- colnames(dat)[-1]
+  colnames(fittest) <- paste("Chr",1:dim(fittest)[2])
 
   # Get the final model formula
   cols <- colnames(dat)
@@ -101,7 +103,8 @@ select <- function(dat, generations=10, f=AIC,
   GA_model
 }
 
-#Use S3 method to print out the fitted score for the chosen model and the chosen model itself.
+# Use S3 method to print out the fitted score
+# for the chosen model and the chosen model itself.
 #' @export
 print.ga_model <- function(ga_model,...){
 
@@ -113,7 +116,7 @@ print.ga_model <- function(ga_model,...){
 }
 
 
-#Use S3 method to plot boxplot for fitness score for each generataion.
+# Use S3 method to plot boxplot for fitness score for each generataion.
 # As we can see in plot, the fitness score converges as generation expands.
 #' @export
 plot.ga_model <- function(ga_model,...){
