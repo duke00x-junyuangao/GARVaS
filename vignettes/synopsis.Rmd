@@ -8,10 +8,80 @@ vignette: >
   \usepackage[utf8]{inputenc}
 ---
 
-## Introduction
-
 ## Authors
 
 * Yuan He
 * Kuan-Cheng Lai
 * Eugene Yedvabny
+
+## Introduction
+
+## Code Layout
+
+## Testing
+
+## Algorithm Implementation
+
+```{r, echo=F}
+library(GARVaS)
+```
+
+We want to implement our algorithm on the built-in dataset within R called  "mtcars", with the first column (mpg=miles per gallon) being the Y variable and the rest 10 columns being predictors.
+
+First take a look at a portion of the dataset:
+```{r, echo=F}
+knitr::kable(head(mtcars))
+```
+
+Then we compare the full model with the updated model using the genetic algorithm. Since the dataset is small, we set generations to be 30 to maximize convergence.
+
+```{r}
+mod = lm(mpg~., data = mtcars) #Full model
+result = select(mtcars, generations = 30)
+mod_new = result$model #Updated model
+```
+
+Then we want to take a look at the variables chosen by the algorithm:
+
+```{r}
+result$fittest
+#Many replicates show good convergence, three variables were singled out.
+
+chosen_ind = c(which(result$fittest[,1] == 1))
+colnames(mtcars[,chosen_ind + 1])
+```
+
+Only 3 variables out of 10 were chosen, dimension got reduced significantly. The three chosen predictors are "wt", "qsec" and "am".
+
+Now check the AIC and prediction accuracy of both models:
+
+```{r}
+AIC(mod)
+AIC(mod_new)
+
+MSE = sum((predict(mod)-mtcars[,1])^2)/nrow(mtcars)
+MSE
+
+MSE_new = sum((predict(mod_new)-mtcars[,1])^2)/nrow(mtcars)
+MSE_new
+```
+
+We managed to decrease the AIC at the cost of sacrificing prediction accuracy (MSE became slightly bigger).
+
+Finally we plot to check normality of both models:
+
+```{r}
+par(mfrow=c(2,1), mar=rep(4,4))
+plot(fitted(mod), residuals(mod), xlab="Fitted Value",
+     ylab="Residual(Error)", main="Residual Plot (full)")
+plot(fitted(mod_new), residuals(mod_new), xlab="Fitted Value", 
+     ylab="Residual(Error)", main="Residual Plot (updated)")
+
+qqnorm(residuals(mod), main="Normal Q-Q Plot (full)")
+qqline(residuals(mod))
+qqnorm(residuals(mod_new), main="Normal Q-Q Plot (updated)")
+qqline(residuals(mod_new))
+```
+
+
+Applying genetic algorithm impairs normality of the model by introducing patterns to residuals. This is reasonable because by throwing away most of the predictors (kept 3 out of 10), we are trading completeness for conciseness.
