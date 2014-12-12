@@ -12,6 +12,15 @@ test_that("Mutation does not change the length or type of the chromosome",{
   expect_equal(class(mutation(test_chr)),class(test_chr))
 })
 
+test_that("Mutations are random on the same input",{
+  test_chr <- sample(c(T,F),1000,replace=T)
+
+  mut1 <- mutation(test_chr)
+  mut2 <- mutation(test_chr)
+
+  expect_false(identical(mut1,mut2))
+})
+
 test_that("Mutations do not happen too often or too rarely",{
   test_mat <- replicate(100,sample(c(T,F),100,replace=T))
   mut_mat <- apply(test_mat,2,mutation)
@@ -21,3 +30,5 @@ test_that("Mutations do not happen too often or too rarely",{
   expect_less_than(num_muts, 150)
   expect_more_than(num_muts,50)
 })
+
+

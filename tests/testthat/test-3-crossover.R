@@ -38,6 +38,22 @@ test_that("Crossed chromosomes are not identical to originals",{
   expect_less_than(num_same_2,100)
 })
 
+test_that("Repeated crossover is random",{
+  chr1 <- rep(T,100)
+  chr2 <- rep(F,100)
+
+  cross1 <- crossover(chr1,chr2)
+  cross2 <- crossover(chr1,chr2)
+  cross3 <- crossover(cross1[,1],cross1[,2])
+
+  expect_false(identical(cross1[,1],cross2[,1]))
+  expect_false(identical(cross1[,2],cross2[,2]))
+
+  # Make sure cross-over is not undoing any crossing
+  expect_false(identical(chr1,cross3[,1]))
+  expect_false(identical(chr2,cross3[,2]))
+})
+
 test_that("Crossover only happens at a single point",{
   chr1 <- rep(T,100)
   chr2 <- rep(F,100)

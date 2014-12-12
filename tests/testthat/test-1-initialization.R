@@ -1,6 +1,6 @@
 context("Test initialization()")
 
-test_that("Errors on incorrect chromosome length",{
+test_that("Errors on invalid chromosome length",{
   expect_error(initialization(),'argument "C" is missing, with no default')
   expect_error(initialization(-1),"invalid 'length' argument")
   expect_error(initialization("1"),'non-numeric argument to binary operator')
@@ -29,4 +29,11 @@ test_that("Correct dimensions when C>25",{
   expect_equal(dim(initialization(26)),c(26,50))
   expect_equal(dim(initialization(50)),c(50,50))
   expect_equal(dim(initialization(100)),c(100,50))
+})
+
+test_that("Repeated initialization does not return the same chromosomes",{
+  chr1 <- initialization(10)
+  chr2 <- initialization(10)
+
+  expect_false(identical(chr1,chr2))
 })
