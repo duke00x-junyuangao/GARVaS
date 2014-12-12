@@ -46,6 +46,13 @@ Testing of the main `select()` function is a combination of unit tests for valid
 
 All unit tests can be executed by running `devtools::test()` from the package directory.
 
+## Distribution of Work
+
+Eugene did the R packages setup, initiated collaboration via Github, wrote the tests and improved the code.
+Yuan wrote the algorithm and carried out the implementation.
+Kuan-Cheng wrote the roxygen2 documentation and modified the algorithm.
+The three of us finished the paper documentation together.
+
 ## Algorithm Implementation
 
 ```{r, echo=F}
