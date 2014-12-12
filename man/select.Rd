@@ -20,30 +20,34 @@ If the f argument is missing, the default is AIC.}
 \item{model}{the linear model that user wants to use to fit in the data.
 It can be either "lm" or "glm", with the default being "lm".}
 
-\item{family}{the family argument in the glm() function, if model was selected as "glm".}
+\item{family}{the family argument in the glm() function,
+if model was selected as "glm".}
 
-\item{graph}{if graph=TRUE, the function will plot the convergence plot based on fitting score.
-If the f argument is missing, the default is TRUE.}
+\item{graph}{if graph=TRUE, the function will plot the convergence plot
+based on fitting score. If the f argument is missing, the default is TRUE.}
 }
 \value{
-It returns a list containg the last generation chromosomes matrix, the fittest chromosomes,
-the fitting scores of each chromosome in the last generation and the best model selected.
+It returns a list containg the last generation chromosomes matrix,
+the fittest chromosomes, the fitting scores of each chromosome in the last
+generation and the best model selected.
 }
 \description{
 This function selects best model for users based on genetic algorithm.
 }
 \details{
-This function will give users best linear regression model selected by genetic algorithm.
-It allows users to choose when to stop the algorithm and what kind of criteria they want to implement in
-the algorithm. And the convergence graph can also let users know when to stop the algorithm.
+This function will give users best linear regression model selected
+by genetic algorithm. It allows users to choose when to stop the algorithm
+and what kind of criteria they want to implement in the algorithm. And the
+convergence graph can also let users know when to stop the algorithm.
 }
 \section{Parallel Computation}{
- The internal fitness calculations use parallel for-loop to rank the chromosomes.
-By default the parallel back-end will scale to use all cores on the machine of choice.
+ The internal fitness calculations use parallel
+for-loop to rank the chromosomes. By default the parallel back-end will scale
+to use all cores on the machine of choice.
 }
 \examples{
 library(faraway)
-dat=ozone #Get ozone data from faraway package
+dat<-ozone #Get ozone data from faraway package
 select(dat)
 select(dat,generations=25,f=AIC, graph=FALSE)
 }

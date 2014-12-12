@@ -6,20 +6,22 @@
 mutation(chr)
 }
 \arguments{
-\item{chr}{a numeric vector represent a individual chromosome.}
+\item{chr}{a logical vector representing an individual chromosome.}
 }
 \value{
-It returns a mutated chromosone vector with the same length as input one.
+Return a mutated chromosome vector
+with the same length as input one.
 }
 \description{
-Make a chromosome with fixed probability 0.01 to mute
+Make a chromosome with fixed probability 0.01 to mutate
 }
 \details{
-This function makes a chromosome has a 1% fixed chance to mute in each locale. If mutation
-happens at one locale, it will make the value in that locale from 1 to 0(or 0 to 1).
+This function makes a chromosome have a 1% fixed chance to mutate
+in each locale. If mutation happens at one locale, it will make the value
+in that locale from T to F(or F to T).
 }
 \examples{
-ind=init(9)[,1] #Generate a chromosome
+ind<-initialization(9)[,1]
 mutation(ind)
 }
 

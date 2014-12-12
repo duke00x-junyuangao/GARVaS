@@ -13,16 +13,18 @@ A matrix with each column representing the
 offsprings from a process of crossover and mutation.
 }
 \description{
-Make 2 individual parent chromosomes crossover and mute when breeding offsprings.
+Make 2 individual parent chromosomes crossover and
+mutate when breeding offsprings.
 }
 \details{
-This function makes two individual parent chromosomes perfrom crossover and mutation
-when breeding next generation. Note that the crossover is simply one-point crossover
+This function makes two individual parent chromosomes
+perfrom crossover and mutation when breeding next generation.
+Note that the crossover is simply one-point crossover
 and the mutation is based on \code{GARVaS::mutation()}.
 }
 \examples{
-ind1=init(9)[,1]
-ind2=init(9)[,2]
+ind1<-initialization(9)[,1]
+ind2<-initialization(9)[,2]
 crossover(ind1,ind2)
 }
 
