@@ -16,9 +16,8 @@ License: MIT + file LICENSE
 LazyData: true
 Suggests:
     knitr,
-    testthat
 VignetteBuilder: knitr
 Imports:
-    faraway,
     doParallel,
-    foreach
+    foreach,
+    testthat

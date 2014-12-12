@@ -18,10 +18,9 @@ Users can choose AIC or BIC or even define by themselves.
 If the f argument is missing, the default is AIC.}
 
 \item{model}{the linear model that user wants to use to fit in the data.
-It can be either "lm" or "glm", with the default being "lm".}
+It can be either \code{lm} or \code{glm}, with the default being \code{lm}.}
 
-\item{family}{the family argument in the glm() function,
-if model was selected as "glm".}
+\item{...}{additional arguments to pass to the model.}
 }
 \value{
 It returns a list containg the last generation chromosomes matrix,

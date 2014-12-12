@@ -18,10 +18,9 @@ even define by themselves. If the f argument is missing, the default is AIC.}
 First column should be the response variable.}
 
 \item{model}{the linear model that user wants to use to fit in the data,
-can be either "lm" or "glm".}
+can be either \code{lm} or \code{glm}.}
 
-\item{family}{the family argument in the glm() function,
-if model was selected as "glm".}
+\item{...}{additional arguments to pass to the model function.}
 }
 \value{
 Return a list, where containing chosen parents, fittest parent
