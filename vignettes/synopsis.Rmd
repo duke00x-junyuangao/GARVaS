@@ -14,7 +14,23 @@ vignette: >
 * Kuan-Cheng Lai
 * Eugene Yedvabny
 
+## Code
+
+The source code is available on GitHub at https://github.com/eyedvabny/GARVaS and is provided as a fully-functional R package. If the `devtools` package is available, GARVaS is easily installed by running:
+
+```{r}
+devtools::install_github("eyedvabny/GARVaS")
+```
+
+The package depends on `doParallel`,`foreach` and `farway` packages, which will be installed alongside GARVaS.
+
 ## Introduction
+
+GARVaS is an implementation of a Darwinian genetic algorithm for selecting best predictor variables for a linear or a generalized linear regression. Regression studies of multivariable datasets are often plagued by colinearity and confounding between the predictors, contributing to low predictive confidence.
+
+A common approach to finding the best predictors in a large pool of candidates is an iterative process that starts with a full-interaction model and compares the quality of the fit after sequentially subtracting a predictor from the model. Unfortunately this process does not permute predictors, so good predictors can be eliminated without much improvement to the fitness if a bad predictor is still part of the model.
+
+The genetic algorithm attemps to solve the above problem by keeping track of all the predictors and permuting them until the best combination emerges. Each predictor is a _gene_ on a _chromosome_ representing a model. A provided fitness function, e.g. AIC, determines the quality of that chromosome. At every generation the fittest chromosomes are stochastically crossed and mutated until "natural selection" converges on a _fittest individual_: a model with the best predictive power for the specified response.
 
 ## Code Layout
 
