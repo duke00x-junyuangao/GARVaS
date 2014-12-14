@@ -36,10 +36,14 @@
 #' @examples
 #' dat<-mtcars
 #' select(dat)
-#' select(dat,generations=25,f=AIC)
+#' select(dat,generations=25,f=AIC,model=lm)
+#' select(dat,generations=25,f=BIC,model=glm,family=gaussian)
 #'
 #' @export
 select <- function(dat, generations=10, f=AIC, model=lm, ...){
+
+  # Input dataset must have column names
+  stopifnot(!is.null(colnames(dat)))
 
   # Load the doParallel and foreach packages if not yet loaded
   if(!requireNamespace("doParallel", quietly = TRUE)|
@@ -47,32 +51,36 @@ select <- function(dat, generations=10, f=AIC, model=lm, ...){
     stop("GARVaS requires doParallel and foreach for parallel computation")
   }
 
+  # Extract predictor and response names
+  response <- colnames(dat)[1]
+  predictors <- colnames(dat)[-1]
+
   # Register the parallel cluster for subsequent computation
   nCores <- parallel::detectCores()
   doParallel::registerDoParallel(nCores)
 
-  # Exclude the 1st column (the response) from the population of predictors
-  C <- ncol(dat) - 1
-  pop <- initialization(C)
+  # Randomize the initial chromosomes
+  pop <- initialization(ncol(dat) - 1)
 
   # Placeholder matrices
   fit.val <- matrix(0,ncol(pop), generations)
 
+  # Run the first round of selection
+  sel.result <- selection(pop,f,dat,model,...)
+
   # Perform the speficied number of generations
   for (i in 1:generations){
-    sel.result <- selection(pop,f,dat,model,...)
     fit.val[,i] <- sel.result$fit
     pop <- production(sel.result$parents)
+    sel.result <- selection(pop,f,dat,model,...)
   }
 
-  # Calculate the final fitness of the selected population
-  fittest <- matrix(selection(pop,f,dat,model,...)$fittest)
-  rownames(fittest) <- colnames(dat)[-1]
+  # Extract and label the fittest chromosome
+  fittest <- matrix(sel.result$fittest)
+  rownames(fittest) <- predictors
 
   # Get the final model formula
-  cols <- colnames(dat)
-  chosen <- which(fittest[,1] == 1) + 1
-  form <- as.formula(paste(cols[1], "~", paste(cols[chosen], collapse = "+")))
+  form <- as.formula(paste(response, "~", paste(predictors[sel.result$fittest], collapse = "+")))
   mod <- model(form, data=dat, ...)
 
   # Use an S3 class for GA selection
@@ -80,14 +88,12 @@ select <- function(dat, generations=10, f=AIC, model=lm, ...){
   class(GA_model) <- "ga_model"
 
   # Return four things:
-  # 1) a matrix of the last generation;
-  # 2) a listing of the fittest individual(s) in the last generation;
+  # 1) A matrix of the last generation.
+  # 2) The fittest individual in the last generation.
   # 3) The fitness score of the over generation for each model.
-  # 4) linear model model using the chosen variables.
+  # 4) linear model using the chosen variables.
   # 5) The fitness score for the selected model.
-  # After 10 generations, the fittest ones are
-  # mostly the same, which shows convergence.
-  GA_model$pop <- pop
+  GA_model$pop <- sel.result$parents
   GA_model$best_genes <- fittest
   GA_model$fit.val <- fit.val
   GA_model$model <- mod
@@ -101,20 +107,18 @@ select <- function(dat, generations=10, f=AIC, model=lm, ...){
 # for the chosen model and the chosen model itself.
 #' @export
 print.ga_model <- function(ga_model,...){
-
-  cat("Fitness Score:\n")
-  print(ga_model$fitness)
-
   cat("Final Model:\n")
   print(ga_model$mod$coefficients)
+  cat("\n")
+  cat(paste("Fitness Score: ",ga_model$fitness,"\n"))
 }
-
 
 # Use S3 method to plot boxplot for fitness score for each generataion.
 # As we can see in plot, the fitness score converges as generation expands.
 #' @export
 plot.ga_model <- function(ga_model,...){
-  boxplot(ga_model$fit.val, xlab="Generation", ylab="Fitness Score")
+  boxplot(ga_model$fit.val, xlab="Generation", ylab="Fitness Score",
+          main="Distribution of Fitness Scores Across Generations")
 }
 
 #' Manual testing of underlying GARVaS functions
