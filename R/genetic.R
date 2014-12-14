@@ -306,6 +306,12 @@ selection <- function(pop, f, dat, model, ...){
   response <- colnames(dat)[1]
   predictors <- colnames(dat)[-1]
 
+  # Input parameters must be named matrices
+  stopifnot(!is.null(P) && !is.null(response) && !is.null(predictors))
+
+  # Number of genes must equal number of predictors
+  stopifnot(nrow(pop)==length(predictors))
+
   # Process each chromosome in parallel
   fit <- foreach::`%dopar%`(foreach::foreach(i = 1:P, .combine=c),{
 
