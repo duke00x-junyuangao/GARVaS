@@ -34,8 +34,7 @@
 #' generation and the best model selected.
 #'
 #' @examples
-#' library(faraway)
-#' dat<-ozone #Get ozone data from faraway package
+#' dat<-mtcars
 #' select(dat)
 #' select(dat,generations=25,f=AIC)
 #'
@@ -67,9 +66,8 @@ select <- function(dat, generations=10, f=AIC, model=lm, ...){
   }
 
   # Calculate the final fitness of the selected population
-  fittest <- selection(pop,f,dat,model,...)$fittest
+  fittest <- matrix(selection(pop,f,dat,model,...)$fittest)
   rownames(fittest) <- colnames(dat)[-1]
-  colnames(fittest) <- paste("Chr",1:dim(fittest)[2])
 
   # Get the final model formula
   cols <- colnames(dat)
@@ -243,8 +241,7 @@ crossover <- function(chr1, chr2){
 #' column representing new generation chromosome.
 #'
 #' @examples
-#' library(faraway)
-#' dat<-ozone #Get ozone data from faraway package
+#' dat<-mtcars #Get ozone data from faraway package
 #' C<-dim(dat)[2]-1 #Number of variables
 #' pop<-initialization(C) #produce boleans matrix
 #' production(pop) #Produce next generation.
@@ -296,50 +293,49 @@ production <- function(pop){
 #' and fitting score for each parent based on fitting function.
 #'
 #' @examples
-#' library(faraway)
-#' dat<-ozone #Get ozone data from faraway package
+#' dat<-mtcars #Get ozone data from faraway package
 #' C<-dim(dat)[2]-1 #Number of variables
 #' pop<-initialization(C) #produce boleans matrix
 #' selection(pop,f=AIC,dat)
 selection <- function(pop, f, dat, model, ...){
 
-  # number of individuals
+  # number of chromosomes
   P <- ncol(pop)
 
   # Variables are columns of the dataset
-  cols <- colnames(dat)
+  response <- colnames(dat)[1]
+  predictors <- colnames(dat)[-1]
 
   # Process each chromosome in parallel
   fit <- foreach::`%dopar%`(foreach::foreach(i = 1:P, .combine=c),{
 
-    # Find the chosen predictors and use them as index
-    chosen <- which(pop[,i]==1) + 1
-
     # Build a formula using the chosen predictors
-    form <- as.formula(paste(cols[1], "~", paste(cols[chosen], collapse = "+")))
+    chosen <- pop[,i]
+    form <- as.formula(paste(response, "~",
+                             paste(predictors[chosen], collapse = "+")))
 
     # Calculate the fitness using the provided fitness function
-    # Lowest AIC has the highest rank so take the negative
-    -f(model(formula=form,data=dat,...))
+    f(model(formula=form,data=dat,...))
   })
 
   # Compute a vector of probability weights
-  fitness <- 2*rank(fit)/(P*(P+1))
+  # Since lowest fitness is the best, take the reverse rank
+  fitness <- 2*rank(-fit)/(P*(P+1))
 
-  # Sample from the P individuals, with weights specified as in fitness,
+  # Sample from the P chromosomes, with weights specified in fitness,
   # with replacement, to generate a parenting population of size P.
   # Note there are duplicates within the parenting population.
   parent_ind <- sample(x=1:P, size=P, replace=T, prob=fitness)
-  parents <- pop[ ,parent_ind]
+  parents <- pop[,parent_ind]
 
   # Keep a copy of the fittest individual.
-  fittest <- pop[,which(fitness==max(fitness))]
+  fittest <- pop[,which.max(fitness)]
 
   # Build the selection result as a list
   sel.result <- list()
   sel.result$parents <- parents
   sel.result$fittest <- fittest
-  sel.result$fit <- -fit
+  sel.result$fit <- fit
 
   # Return the result
   sel.result
