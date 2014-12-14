@@ -1,7 +1,9 @@
 ---
 title: "GARVaS: Genetic Algorithm for Regression Variable Selection"
 date: "`r Sys.Date()`"
-output: rmarkdown::pdf_document
+output:
+  pdf_document:
+    fig_height: 4
 vignette: >
   %\VignetteIndexEntry{synopsis}
   %\VignetteEngine{knitr::rmarkdown}
@@ -22,7 +24,7 @@ The source code is available on GitHub at https://github.com/eyedvabny/GARVaS an
 devtools::install_github("eyedvabny/GARVaS")
 ```
 
-or by cloning the repository and opening the included .Rproj file.The package depends on `doParallel`,`foreach` and `faraway` packages, which will be installed alongside GARVaS.
+or by cloning the repository and opening the included .Rproj file.The package depends on `doParallel` and `foreach`, which will be installed alongside GARVaS.
 
 ## Introduction
 
@@ -93,11 +95,11 @@ Now check the AIC and prediction accuracy of both models:
 AIC(mod)
 AIC(result$model)
 
-MSE <- sum((predict(mod)-mtcars[,1])^2)/nrow(mtcars)
-MSE
+# Mean Square Error of full model
+sum((predict(mod)-mtcars[,1])^2)/nrow(mtcars)
 
-MSE_new <- sum((predict(result$model)-mtcars[,1])^2)/nrow(mtcars)
-MSE_new
+# Mean Square Error of selected model
+sum((predict(result$model)-mtcars[,1])^2)/nrow(mtcars)
 ```
 
 We managed to decrease the AIC at the cost of sacrificing prediction accuracy (MSE became slightly bigger).
@@ -112,8 +114,6 @@ plot(fitted(mod), residuals(mod), xlab="Fitted Value",
 plot(fitted(result$model), residuals(result$model), xlab="Fitted Value", 
      ylab="Residual(Error)", main="Residual Plot (updated)")
 ```
-
-\pagebreak
 
 ```{r, echo=FALSE}
 qqnorm(residuals(mod), main="Normal Q-Q Plot (full)")
