@@ -121,7 +121,7 @@ plot.ga_model <- function(ga_model,...){
           main="Distribution of Fitness Scores Across Generations")
 }
 
-#' Manual testing of underlying GARVaS functions
+#' Manual Testing of Underlying GARVaS Functions
 #'
 #' Normally the package is tested automatically by running
 #' \code{devtools::test()} but for simplicity the \code{test()} function
@@ -321,11 +321,17 @@ selection <- function(pop, f, dat, model, ...){
 
     # Build a formula using the chosen predictors
     chosen <- pop[,i]
-    form <- as.formula(paste(response, "~",
-                             paste(predictors[chosen], collapse = "+")))
 
-    # Calculate the fitness using the provided fitness function
-    f(model(formula=form,data=dat,...))
+    # Account for situation when all predictors are F
+    if(sum(chosen)){
+      form <- as.formula(paste(response, "~",
+                               paste(predictors[chosen], collapse = "+")))
+
+      # Calculate the fitness using the provided fitness function
+      f(model(formula=form,data=dat,...))
+    }else{
+      Inf
+    }
   })
 
   # Compute a vector of probability weights
