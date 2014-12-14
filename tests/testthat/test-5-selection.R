@@ -83,4 +83,11 @@ test_that("Results are representative of the fitness and model functions",{
 
   expect_equal(sel_result2$fittest,test_pop[,1])
   expect_equal(sel_result2$fit,c(fit2_1,fit2_2))
+
+  # Contingency if all genes are turned off
+  test_pop2<- matrix(c(F,F,F,F),2,2)
+  sel_result3 <- selection(pop=test_pop2,dat=test_dat,f=AIC,model=lm)
+
+  expect_equal(sel_result3$fittest,test_pop2[,1])
+  expect_equal(sel_result3$fit,c(Inf,Inf))
 })
