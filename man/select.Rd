@@ -41,9 +41,9 @@ for-loop to rank the chromosomes. By default the parallel back-end will scale
 to use all cores on the machine of choice.
 }
 \examples{
-library(faraway)
-dat<-ozone #Get ozone data from faraway package
+dat<-mtcars
 select(dat)
-select(dat,generations=25,f=AIC)
+select(dat,generations=25,f=AIC,model=lm)
+select(dat,generations=25,f=BIC,model=glm,family=gaussian)
 }
 

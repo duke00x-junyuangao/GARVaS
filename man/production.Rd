@@ -21,8 +21,7 @@ This function produces the next generation by randomly choosing
 process of crossover and mutation using \code{GARVaS::crossover()}
 }
 \examples{
-library(faraway)
-dat<-ozone #Get ozone data from faraway package
+dat<-mtcars #Get ozone data from faraway package
 C<-dim(dat)[2]-1 #Number of variables
 pop<-initialization(C) #produce boleans matrix
 production(pop) #Produce next generation.
